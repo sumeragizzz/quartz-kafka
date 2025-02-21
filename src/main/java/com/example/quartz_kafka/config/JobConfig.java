@@ -22,7 +22,7 @@ public class JobConfig {
     public SimpleTriggerFactoryBean jobTrigger(JobDetail jobDetail) {
         SimpleTriggerFactoryBean factory = new SimpleTriggerFactoryBean();
         factory.setJobDetail(jobDetail);
-        factory.setRepeatInterval(10 * 1000L);
+        factory.setRepeatInterval(30 * 1000L);
         return factory;
     }
 

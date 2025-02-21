@@ -1,18 +1,17 @@
 package com.example.quartz_kafka.service;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.admin.TopicDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Properties;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -21,9 +20,12 @@ public class QuartzKafkaService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QuartzKafkaService.class);
 
+    private final KafkaAdmin admin;
+
     private final KafkaTemplate<String, String> template;
 
-    public QuartzKafkaService(KafkaTemplate<String, String> template) {
+    public QuartzKafkaService(KafkaAdmin admin, KafkaTemplate<String, String> template) {
+        this.admin = admin;
         this.template = template;
     }
 
@@ -45,6 +47,16 @@ public class QuartzKafkaService {
         }
 
         LOGGER.info("end   {}", QuartzKafkaService.class.getSimpleName());
+    }
+
+    public void createTopic(String topicName) {
+        NewTopic topic = TopicBuilder.name(topicName)
+                .partitions(1)
+                .build();
+        admin.createOrModifyTopics(topic);
+
+        Map<String, TopicDescription> topics = admin.describeTopics(topicName);
+        LOGGER.info("topic : {}", topics);
     }
 
 }
