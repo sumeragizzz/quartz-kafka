@@ -29,7 +29,7 @@ public class QuartzKafkaService {
         this.template = template;
     }
 
-    public void execute() {
+    public void sendRecord() {
         LOGGER.info("start {}", QuartzKafkaService.class.getSimpleName());
 
         // 送信するメッセージ
@@ -47,6 +47,28 @@ public class QuartzKafkaService {
         }
 
         LOGGER.info("end   {}", QuartzKafkaService.class.getSimpleName());
+    }
+
+    public void sendRecord(String topicName, String key, String value) {
+        try {
+            LOGGER.atInfo().setMessage("start sendRecord(). topicName: {}, key: {}, value: {}").addArgument(topicName).addArgument(key).addArgument(value).log();
+
+            // KafkaTemplateにより非同期でメッセージ送信する
+            CompletableFuture<SendResult<String, String>> future = template.send(topicName, key, value);
+            future.thenAccept(result -> LOGGER.atInfo()
+                    .setMessage("Sent message to topic: {}, partition: {}, offset: {}, key: {}, value: {}")
+                    .addArgument(result.getRecordMetadata().topic())
+                    .addArgument(result.getRecordMetadata().partition())
+                    .addArgument(result.getRecordMetadata().offset())
+                    .addArgument(result.getProducerRecord().key())
+                    .addArgument(result.getProducerRecord().value())
+                    .log());
+            SendResult<String, String> result = future.get();
+
+            LOGGER.atInfo().setMessage("end   sendRecord(). result: {}").addArgument(result.getProducerRecord()).log();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void createTopic(String topicName) {

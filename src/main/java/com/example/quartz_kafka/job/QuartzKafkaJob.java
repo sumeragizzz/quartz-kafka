@@ -20,7 +20,7 @@ public class QuartzKafkaJob extends QuartzJobBean {
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         LOGGER.info("start {}", QuartzKafkaJob.class.getSimpleName());
-        quartzKafkaService.execute();
+        quartzKafkaService.sendRecord();
         LOGGER.info("end   {}", QuartzKafkaJob.class.getSimpleName());
     }
 
