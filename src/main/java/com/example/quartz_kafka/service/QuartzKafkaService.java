@@ -9,6 +9,7 @@ import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -29,6 +30,7 @@ public class QuartzKafkaService {
         this.template = template;
     }
 
+    @Transactional
     public void sendRecord() {
         LOGGER.info("start {}", QuartzKafkaService.class.getSimpleName());
 
@@ -49,6 +51,7 @@ public class QuartzKafkaService {
         LOGGER.info("end   {}", QuartzKafkaService.class.getSimpleName());
     }
 
+    @Transactional
     public void sendRecord(String topicName, String key, String value) {
         try {
             LOGGER.atInfo().setMessage("start sendRecord(). topicName: {}, key: {}, value: {}").addArgument(topicName).addArgument(key).addArgument(value).log();
